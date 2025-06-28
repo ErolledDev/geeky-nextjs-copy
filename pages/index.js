@@ -4,12 +4,12 @@ import ImageFallback from "@layouts/components/ImageFallback";
 import Pagination from "@layouts/components/Pagination";
 import Post from "@layouts/partials/Post";
 import Sidebar from "@layouts/partials/Sidebar";
-import { getAllPosts, getAllCategories, getFeaturedPosts } from "@lib/api";
+import { getAllPosts, getAllCategories, getFeaturedPosts, getSiteStats } from "@lib/api";
 import dateFormat from "@lib/utils/dateFormat";
-import { sortByDate } from "@lib/utils/sortFunctions";
 import { markdownify } from "@lib/utils/textConverter";
 import Link from "next/link";
 import { FaRegCalendar } from "react-icons/fa";
+
 const { blog_folder, pagination } = config.settings;
 
 // Default banner content
@@ -38,25 +38,55 @@ const defaultRecentPosts = {
   title: "Recent Posts"
 };
 
-const defaultPromotion = {
-  enable: false,
-  image: "/images/promotion.png",
-  link: "#"
-};
-
 const Home = ({
   posts,
   categories,
   featuredPosts,
+  siteStats
 }) => {
   const showPosts = pagination;
   const banner = defaultBanner;
   const featured_posts = defaultFeaturedPosts;
   const recent_posts = defaultRecentPosts;
-  const promotion = defaultPromotion;
+
+  // Enhanced structured data for homepage
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": config.site.title,
+    "description": config.metadata.meta_description,
+    "url": config.site.base_url,
+    "author": {
+      "@type": "Organization",
+      "name": config.metadata.meta_author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": config.metadata.meta_author,
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${config.site.base_url}${config.site.logo}`
+      }
+    },
+    "blogPost": posts.slice(0, 5).map(post => ({
+      "@type": "BlogPosting",
+      "headline": post.frontmatter.title,
+      "description": post.frontmatter.description,
+      "url": `${config.site.base_url}/${blog_folder}/${post.slug}`,
+      "datePublished": post.frontmatter.date,
+      "author": {
+        "@type": "Person",
+        "name": post.frontmatter.author
+      }
+    }))
+  };
 
   return (
-    <Base>
+    <Base
+      title="Home"
+      description={config.metadata.meta_description}
+      structuredData={structuredData}
+    >
       {/* Banner */}
       <section className="section banner relative pb-0">
         <ImageFallback
@@ -76,27 +106,44 @@ const Home = ({
                 {markdownify(banner.title_small, "span")}
               </div>
               {markdownify(banner.content, "p", "mt-4")}
+              
+              {/* Site Stats */}
+              <div className="flex flex-wrap gap-6 mt-6 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center">
+                  <span className="font-semibold text-primary mr-1">{siteStats.totalPosts}</span>
+                  <span>Articles</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-semibold text-primary mr-1">{siteStats.totalCategories}</span>
+                  <span>Categories</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-semibold text-primary mr-1">{siteStats.avgReadingTime}</span>
+                  <span>Avg. Read Time</span>
+                </div>
+              </div>
+
               {banner.button.enable && (
-                  <Link
-                    className="btn btn-primary mt-6"
-                    href={banner.button.link}
-                    rel={banner.button.rel}
-                  >
-                    {banner.button.label}
-                  </Link>
+                <Link
+                  className="btn btn-primary mt-6"
+                  href={banner.button.link}
+                  rel={banner.button.rel}
+                >
+                  {banner.button.label}
+                </Link>
               )}
             </div>
             {banner.image_enable && (
-                <div className="col-9 lg:col-6">
-                  <ImageFallback
-                    className="mx-auto object-contain"
-                    src={banner.image}
-                    width={548}
-                    height={443}
-                    priority={true}
-                    alt="Banner Image"
-                  />
-                </div>
+              <div className="col-9 lg:col-6">
+                <ImageFallback
+                  className="mx-auto object-contain"
+                  src={banner.image}
+                  width={548}
+                  height={443}
+                  priority={true}
+                  alt="Banner Image"
+                />
+              </div>
             )}
           </div>
         </div>
@@ -120,12 +167,12 @@ const Home = ({
                         {featuredPosts
                           .slice(1, featuredPosts.length)
                           .map((post, i, arr) => (
-                            <div
+                            <article
                               className={`mb-6 flex items-center pb-6 ${
                                 i !== arr.length - 1 &&
                                 "border-b border-border dark:border-darkmode-border"
                               }`}
-                              key={`key-${i}`}
+                              key={`featured-${i}`}
                             >
                               {post.frontmatter.image && (
                                 <ImageFallback
@@ -145,30 +192,24 @@ const Home = ({
                                     {post.frontmatter.title}
                                   </Link>
                                 </h3>
-                                <p className="inline-flex items-center font-bold">
+                                <div className="flex items-center text-xs text-gray-500">
                                   <FaRegCalendar className="mr-1.5" />
-                                  {dateFormat(post.frontmatter.date)}
-                                </p>
+                                  <time dateTime={post.frontmatter.date}>
+                                    {dateFormat(post.frontmatter.date)}
+                                  </time>
+                                  {post.frontmatter.schema?.readingTime && (
+                                    <span className="ml-3">
+                                      {post.frontmatter.schema.readingTime} min read
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                            </article>
                           ))}
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* Promotion */}
-              {promotion.enable && (
-                <Link href={promotion.link} className="section block pt-0">
-                  <ImageFallback
-                    className="h-full w-full"
-                    height="115"
-                    width="800"
-                    src={promotion.image}
-                    alt="promotion"
-                  />
-                </Link>
               )}
 
               {/* Recent Posts */}
@@ -192,6 +233,7 @@ const Home = ({
                 currentPage={1}
               />
             </div>
+            
             {/* sidebar */}
             <Sidebar
               className={"lg:mt-[9.5rem]"}
@@ -207,19 +249,46 @@ const Home = ({
 
 export default Home;
 
-// for homepage data
+// Enhanced static props with better error handling and caching
 export const getStaticProps = async () => {
-  // Fetch data from API
-  const posts = await getAllPosts();
-  const categories = await getAllCategories();
-  const featuredPosts = await getFeaturedPosts(defaultFeaturedPosts.showPost || 6);
+  try {
+    // Fetch data from API with parallel requests
+    const [posts, categories, featuredPosts, siteStats] = await Promise.all([
+      getAllPosts(),
+      getAllCategories(),
+      getFeaturedPosts(defaultFeaturedPosts.showPost || 6),
+      getSiteStats()
+    ]);
 
-  return {
-    props: {
-      posts: posts,
-      categories: categories,
-      featuredPosts: featuredPosts,
-    },
-    revalidate: 60, // Revalidate every minute
-  };
+    return {
+      props: {
+        posts: posts || [],
+        categories: categories || [],
+        featuredPosts: featuredPosts || [],
+        siteStats: siteStats || {
+          totalPosts: 0,
+          totalCategories: 0,
+          avgReadingTime: 0
+        }
+      },
+      revalidate: 300, // Revalidate every 5 minutes
+    };
+  } catch (error) {
+    console.error('Error in getStaticProps:', error);
+    
+    // Return fallback data in case of error
+    return {
+      props: {
+        posts: [],
+        categories: [],
+        featuredPosts: [],
+        siteStats: {
+          totalPosts: 0,
+          totalCategories: 0,
+          avgReadingTime: 0
+        }
+      },
+      revalidate: 60, // Retry more frequently on error
+    };
+  }
 };

@@ -1,4 +1,18 @@
 User-agent: *
 Allow: /
 
-Disallow: /api/*
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /search?
+
+# Allow search engines to crawl images
+Allow: /images/
+Allow: /videos/
+
+# Sitemap location
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

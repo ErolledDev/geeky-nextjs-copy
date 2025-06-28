@@ -12,85 +12,85 @@ const Base = ({
   image,
   noindex,
   canonical,
+  structuredData,
   children,
 }) => {
   const { meta_image, meta_author, meta_description } = config.metadata;
-  const { base_url } = config.site;
+  const { base_url, title: siteTitle } = config.site;
   const router = useRouter();
+
+  // Enhanced SEO title generation
+  const pageTitle = plainify(
+    meta_title ? meta_title : title ? `${title} | ${siteTitle}` : siteTitle
+  );
+
+  // Enhanced description
+  const pageDescription = plainify(
+    description ? description : meta_description
+  );
+
+  // Canonical URL
+  const canonicalUrl = canonical || `${base_url}${router.asPath}`;
+
+  // Open Graph image
+  const ogImage = image ? `${base_url}${image}` : `${base_url}${meta_image}`;
 
   return (
     <>
       <Head>
-        {/* title */}
-        <title>
-          {plainify(
-            meta_title ? meta_title : title ? title : config.site.title
-          )}
-        </title>
-
-        {/* canonical url */}
-        {canonical && <link rel="canonical" href={canonical} itemProp="url" />}
-
-        {/* noindex robots */}
-        {noindex && <meta name="robots" content="noindex,nofollow" />}
-
-        {/* meta-description */}
-        <meta
-          name="description"
-          content={plainify(description ? description : meta_description)}
-        />
-
-        {/* author from config.json */}
+        {/* Basic Meta Tags */}
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <meta name="author" content={meta_author} />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
 
-        {/* og-title */}
-        <meta
-          property="og:title"
-          content={plainify(
-            meta_title ? meta_title : title ? title : config.site.title
-          )}
-        />
+        {/* Canonical URL */}
+        <link rel="canonical" href={canonicalUrl} itemProp="url" />
 
-        {/* og-description */}
-        <meta
-          property="og:description"
-          content={plainify(description ? description : meta_description)}
-        />
+        {/* Robots Meta */}
+        {noindex && <meta name="robots" content="noindex,nofollow" />}
+        {!noindex && <meta name="robots" content="index,follow" />}
+
+        {/* Open Graph Tags */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content={`${base_url}/${router.asPath.replace("/", "")}`}
-        />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:alt" content={title || siteTitle} />
+        <meta property="og:site_name" content={siteTitle} />
+        <meta property="og:locale" content="en_US" />
 
-        {/* twitter-title */}
-        <meta
-          name="twitter:title"
-          content={plainify(
-            meta_title ? meta_title : title ? title : config.site.title
-          )}
-        />
-
-        {/* twitter-description */}
-        <meta
-          name="twitter:description"
-          content={plainify(description ? description : meta_description)}
-        />
-
-        {/* og-image */}
-        <meta
-          property="og:image"
-          content={`${base_url}${image ? image : meta_image}`}
-        />
-
-        {/* twitter-image */}
-        <meta
-          name="twitter:image"
-          content={`${base_url}${image ? image : meta_image}`}
-        />
+        {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content={title || siteTitle} />
+
+        {/* Additional SEO Meta Tags */}
+        <meta name="theme-color" content="#2ba283" />
+        <meta name="msapplication-TileColor" content="#2ba283" />
+        
+        {/* Preconnect for performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+
+        {/* Structured Data */}
+        {structuredData && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(structuredData)
+            }}
+          />
+        )}
+
+        {/* Favicon and App Icons */}
+        <link rel="icon" href="/images/favicon.png" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
       </Head>
       <Header />
-      {/* main site */}
       <main>{children}</main>
       <Footer />
     </>
