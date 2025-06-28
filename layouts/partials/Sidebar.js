@@ -10,9 +10,8 @@ import { markdownify } from "@lib/utils/textConverter";
 import Link from "next/link";
 import { useState } from "react";
 import { FaRegCalendar } from "react-icons/fa";
-import MailchimpSubscribe from "react-mailchimp-subscribe";
 const { blog_folder } = config.settings;
-const { about, featured_posts, newsletter } = config.widgets;
+const { about, featured_posts } = config.widgets;
 
 const Sidebar = ({ posts, categories, className }) => {
   const sortPostByDate = sortByDate(posts);
@@ -42,17 +41,17 @@ const Sidebar = ({ posts, categories, className }) => {
       )}
 
       {/* categories widget */}
-      {categories.enable && (
+      {categories && categories.length > 0 && (
         <div className="mt-6 rounded border border-border p-6 dark:border-darkmode-border">
           <h4 className="section-title mb-12 text-center">
-            {featured_posts.title}
+            Blog Categories
           </h4>
           <ul>
             {categories.map((category, i) => (
               <li
                 className={`relative mb-2 flex items-center justify-between pl-6 text-[16px] font-bold capitalize text-dark dark:text-darkmode-light ${
                   i !== categories.length - 1 &&
-                  "border-b border-border  dark:border-darkmode-border"
+                  "border-b border-border dark:border-darkmode-border"
                 }`}
                 key={i}
               >
@@ -86,7 +85,7 @@ const Sidebar = ({ posts, categories, className }) => {
       )}
 
       {/* featured widget */}
-      {featured_posts.enable && (
+      {featured_posts.enable && posts && posts.length > 0 && (
         <div className="mt-6 rounded border border-border p-6 dark:border-darkmode-border">
           <h4 className="section-title mb-12 text-center">Featured</h4>
           <div className="mb-12 flex items-center justify-center">
@@ -99,7 +98,7 @@ const Sidebar = ({ posts, categories, className }) => {
               Featured
             </button>
             <button
-              className={`btn ml-3  px-5 py-2 ${
+              className={`btn ml-3 px-5 py-2 ${
                 showRecent ? "btn-primary" : "btn-outline-primary"
               }`}
               onClick={() => setShowRecent(true)}
@@ -182,31 +181,17 @@ const Sidebar = ({ posts, categories, className }) => {
       )}
 
       {/* newsletter */}
-      {newsletter.enable && (
-        <div className="mt-6  rounded border border-border p-6 text-center dark:border-darkmode-border">
-          <h4 className="section-title">{newsletter.title}</h4>
-          <p className="mt-10 text-xs">{newsletter.content}</p>
-          <MailchimpSubscribe
-            url={newsletter.malichip_url}
-            render={({ subscribe, status, message }) => (
-              <CustomForm
-                onValidated={(formData) => subscribe(formData)}
-                status={status}
-                message={message}
-              />
-            )}
-          />
-          <p className="text-xs">
-            By Singing Up, You Agree To
-            <Link
-              href={newsletter.privacy_policy_page}
-              className="ml-1 text-primary"
-            >
-              Privacy Policy
-            </Link>
-          </p>
-        </div>
-      )}
+      <div className="mt-6 rounded border border-border p-6 text-center dark:border-darkmode-border">
+        <h4 className="section-title">Newsletter</h4>
+        <p className="mt-10 text-xs">Join thousands of subscribers and get our best content delivered each week!</p>
+        <CustomForm />
+        <p className="text-xs">
+          By Signing Up, You Agree To
+          <Link href="#" className="ml-1 text-primary">
+            Privacy Policy
+          </Link>
+        </p>
+      </div>
     </aside>
   );
 };

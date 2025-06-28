@@ -13,15 +13,10 @@
     "theme_switcher": true,
     "default_theme": "system",
     "pagination": 6,
-    "InnerPaginationOptions": {
-      "enableTop": false,
-      "enableBottom": true
-    },
     "summary_length": 200,
     "blog_folder": "posts"
   },
   "params": {
-    "tag_manager_id": "",
     "footer_content": "Lorem ipsum dolor sit amt, conse adip iscing. donec iaculis tempasus laoreet. Libero ullam rgscper.",
     "copyright": "Designed and Developed By [Statichunt](https://statichunt.com/)"
   },
@@ -37,24 +32,12 @@
     },
     "featured_posts": {
       "enable": true,
-      "title": "Blog Categories",
+      "title": "Featured Posts",
       "showPost": 3
     },
     "categories": {
       "enable": true,
       "title": "Blog Categories"
-    },
-    "newsletter": {
-      "enable": true,
-      "title": "Newsletter",
-      "content": "Join thousands of Tiny Salt subscribers and get our best recipes delivered each week!",
-      "privacy_policy_page": "#",
-      "malichipm_url": ""
     }
-  },
-  "disqus": {
-    "enable": true,
-    "shortname": "themefisher-template",
-    "settings": {}
   }
 }
