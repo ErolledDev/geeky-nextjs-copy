@@ -20,20 +20,19 @@ const PostSingle = ({
   content,
   mdxContent,
   slug,
-  posts,
   allCategories,
   relatedPosts,
+  posts,
 }) => {
   let { description, title, date, image, categories } = frontmatter;
   description = description ? description : content.slice(0, 120);
 
   const { theme } = useTheme();
   const author = frontmatter.author ? frontmatter.author : meta_author;
+  
   // Local copy so we don't modify global config.
   let disqusConfig = config.disqus.settings;
-  disqusConfig.identifier = frontmatter.disqusId
-    ? frontmatter.disqusId
-    : config.settings.blog_folder + "/" + slug;
+  disqusConfig.identifier = slug;
 
   return (
     <Base title={title} description={description}>
@@ -60,7 +59,7 @@ const PostSingle = ({
                       >
                         <Link
                           className="capitalize"
-                          href={`/categories/${tag.replace(" ", "-")}`}
+                          href={`/categories/${tag.toLowerCase().replace(/\s+/g, '-')}`}
                         >
                           {tag}
                         </Link>

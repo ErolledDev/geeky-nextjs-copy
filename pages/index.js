@@ -4,8 +4,8 @@ import ImageFallback from "@layouts/components/ImageFallback";
 import Pagination from "@layouts/components/Pagination";
 import Post from "@layouts/partials/Post";
 import Sidebar from "@layouts/partials/Sidebar";
-import { getListPage, getSinglePage } from "@lib/contentParser";
-import { getTaxonomy } from "@lib/taxonomyParser";
+import { getListPage } from "@lib/contentParser";
+import { getAllPosts, getAllCategories, getFeaturedPosts } from "@lib/api";
 import dateFormat from "@lib/utils/dateFormat";
 import { sortByDate } from "@lib/utils/sortFunctions";
 import { markdownify } from "@lib/utils/textConverter";
@@ -20,12 +20,8 @@ const Home = ({
   recent_posts,
   categories,
   promotion,
+  featuredPosts,
 }) => {
-  // define state
-  const sortPostByDate = sortByDate(posts);
-  const featuredPosts = sortPostByDate.filter(
-    (post) => post.frontmatter.featured
-  );
   const showPosts = pagination;
 
   return (
@@ -81,7 +77,7 @@ const Home = ({
           <div className="row items-start">
             <div className="mb-12 lg:mb-0 lg:col-8">
               {/* Featured posts */}
-              {featured_posts.enable && (
+              {featured_posts.enable && featuredPosts.length > 0 && (
                 <div className="section">
                   {markdownify(featured_posts.title, "h2", "section-title")}
                   <div className="rounded border border-border p-6 dark:border-darkmode-border">
@@ -150,7 +146,7 @@ const Home = ({
                   {markdownify(recent_posts.title, "h2", "section-title")}
                   <div className="rounded border border-border px-6 pt-6 dark:border-darkmode-border">
                     <div className="row">
-                      {sortPostByDate.slice(0, showPosts).map((post) => (
+                      {posts.slice(0, showPosts).map((post) => (
                         <div className="mb-8 md:col-6" key={post.slug}>
                           <Post post={post} />
                         </div>
@@ -185,18 +181,11 @@ export const getStaticProps = async () => {
   const homepage = await getListPage("content/_index.md");
   const { frontmatter } = homepage;
   const { banner, featured_posts, recent_posts, promotion } = frontmatter;
-  const posts = getSinglePage(`content/${blog_folder}`);
-  const categories = getTaxonomy(`content/${blog_folder}`, "categories");
-
-  const categoriesWithPostsCount = categories.map((category) => {
-    const filteredPosts = posts.filter((post) =>
-      post.frontmatter.categories.includes(category)
-    );
-    return {
-      name: category,
-      posts: filteredPosts.length,
-    };
-  });
+  
+  // Fetch data from API
+  const posts = await getAllPosts();
+  const categories = await getAllCategories();
+  const featuredPosts = await getFeaturedPosts(featured_posts.showPost || 6);
 
   return {
     props: {
@@ -205,7 +194,9 @@ export const getStaticProps = async () => {
       featured_posts,
       recent_posts,
       promotion,
-      categories: categoriesWithPostsCount,
+      categories: categories,
+      featuredPosts: featuredPosts,
     },
+    revalidate: 60, // Revalidate every minute
   };
 };

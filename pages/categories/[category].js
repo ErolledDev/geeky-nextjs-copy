@@ -1,9 +1,7 @@
 import config from "@config/config.json";
 import Base from "@layouts/Baseof";
 import Sidebar from "@layouts/partials/Sidebar";
-import { getSinglePage } from "@lib/contentParser";
-import { getTaxonomy } from "@lib/taxonomyParser";
-import { slugify } from "@lib/utils/textConverter";
+import { getAllCategories, getPostsByCategory, getAllPosts } from "@lib/api";
 import Post from "@partials/Post";
 const { blog_folder } = config.settings;
 
@@ -40,12 +38,12 @@ const Category = ({ postsByCategories, category, posts, categories }) => {
 export default Category;
 
 // category page routes
-export const getStaticPaths = () => {
-  const allCategories = getTaxonomy(`content/${blog_folder}`, "categories");
+export const getStaticPaths = async () => {
+  const allCategories = await getAllCategories();
 
   const paths = allCategories.map((category) => ({
     params: {
-      category: category,
+      category: category.name,
     },
   }));
 
@@ -53,31 +51,18 @@ export const getStaticPaths = () => {
 };
 
 // category page data
-export const getStaticProps = ({ params }) => {
-  const posts = getSinglePage(`content/${blog_folder}`);
-  const filterPosts = posts.filter((post) =>
-    post.frontmatter.categories.find((category) =>
-      slugify(category).includes(params.category)
-    )
-  );
-  const categories = getTaxonomy(`content/${blog_folder}`, "categories");
-
-  const categoriesWithPostsCount = categories.map((category) => {
-    const filteredPosts = posts.filter((post) =>
-      post.frontmatter.categories.map(e => slugify(e)).includes(category)
-    );
-    return {
-      name: category,
-      posts: filteredPosts.length,
-    };
-  });
+export const getStaticProps = async ({ params }) => {
+  const posts = await getAllPosts();
+  const filterPosts = await getPostsByCategory(params.category);
+  const categories = await getAllCategories();
 
   return {
     props: {
       posts,
       postsByCategories: filterPosts,
       category: params.category,
-      categories: categoriesWithPostsCount,
+      categories: categories,
     },
+    revalidate: 60, // Revalidate every minute
   };
 };

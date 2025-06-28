@@ -8,6 +8,7 @@ const Post = ({ post }) => {
   const { summary_length, blog_folder } = config.settings;
   const { meta_author } = config.metadata;
   const author = post.frontmatter.author ? post.frontmatter.author : meta_author;
+  
   return (
     <div className="post">
       <div className="relative">
@@ -28,7 +29,7 @@ const Post = ({ post }) => {
             >
               <Link
                 className="capitalize"
-                href={`/categories/${tag.replace(" ", "-")}`}
+                href={`/categories/${tag.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 {tag}
               </Link>

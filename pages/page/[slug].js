@@ -1,21 +1,22 @@
 import config from "@config/config.json";
 import Base from "@layouts/Baseof";
 import Pagination from "@layouts/components/Pagination";
-import { getListPage, getSinglePage } from "@lib/contentParser";
+import { getListPage } from "@lib/contentParser";
+import { getAllPosts } from "@lib/api";
 import { markdownify } from "@lib/utils/textConverter";
 import { sortByDate } from "@lib/utils/sortFunctions";
 import Post from "@partials/Post";
-const { blog_folder, summary_length } = config.settings;
+const { blog_folder, pagination } = config.settings;
 
 // blog pagination
-const BlogPagination = ({ postIndex, posts, currentPage, pagination }) => {
-  const indexOfLastPost = currentPage * pagination;
-  const indexOfFirstPost = indexOfLastPost - pagination;
+const BlogPagination = ({ postIndex, posts, currentPage, paginationCount }) => {
+  const indexOfLastPost = currentPage * paginationCount;
+  const indexOfFirstPost = indexOfLastPost - paginationCount;
   const orderedPosts = sortByDate(posts);
   const currentPosts = orderedPosts.slice(indexOfFirstPost, indexOfLastPost);
   const { frontmatter } = postIndex;
   const { title } = frontmatter;
-  const totalPages = Math.ceil(posts.length / pagination);
+  const totalPages = Math.ceil(posts.length / paginationCount);
 
   return (
     <Base title={title}>
@@ -39,11 +40,10 @@ const BlogPagination = ({ postIndex, posts, currentPage, pagination }) => {
 export default BlogPagination;
 
 // get blog pagination slug
-export const getStaticPaths = () => {
-  const getAllSlug = getSinglePage(`content/${blog_folder}`);
-  const allSlug = getAllSlug.map((item) => item.slug);
+export const getStaticPaths = async () => {
+  const allPosts = await getAllPosts();
   const { pagination } = config.settings;
-  const totalPages = Math.ceil(allSlug.length / pagination);
+  const totalPages = Math.ceil(allPosts.length / pagination);
   let paths = [];
 
   for (let i = 1; i < totalPages; i++) {
@@ -64,15 +64,16 @@ export const getStaticPaths = () => {
 export const getStaticProps = async ({ params }) => {
   const currentPage = parseInt((params && params.slug) || 1);
   const { pagination } = config.settings;
-  const posts = getSinglePage(`content/${blog_folder}`);
+  const posts = await getAllPosts();
   const postIndex = await getListPage(`content/${blog_folder}/_index.md`);
 
   return {
     props: {
-      pagination: pagination,
+      paginationCount: pagination,
       posts: posts,
       currentPage: currentPage,
       postIndex: postIndex,
     },
+    revalidate: 60, // Revalidate every minute
   };
 };

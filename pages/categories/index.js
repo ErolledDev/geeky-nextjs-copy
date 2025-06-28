@@ -1,12 +1,9 @@
 import config from "@config/config.json";
 import Base from "@layouts/Baseof";
-import { getTaxonomy } from "@lib/taxonomyParser";
+import { getAllCategories } from "@lib/api";
 import { humanize, markdownify } from "@lib/utils/textConverter";
 import Link from "next/link";
-const { blog_folder } = config.settings;
-import { getSinglePage } from "@lib/contentParser";
 import { FaFolder } from "react-icons/fa";
-import { slugify } from "@lib/utils/textConverter";
 
 const Categories = ({ categories }) => {
   return (
@@ -42,21 +39,13 @@ const Categories = ({ categories }) => {
 
 export default Categories;
 
-export const getStaticProps = () => {
-  const posts = getSinglePage(`content/${blog_folder}`);
-  const categories = getTaxonomy(`content/${blog_folder}`, "categories");
-  const categoriesWithPostsCount = categories.map((category) => {
-    const filteredPosts = posts.filter((post) =>
-      post.frontmatter.categories.map(e => slugify(e)).includes(category)
-    );
-    return {
-      name: category,
-      posts: filteredPosts.length,
-    };
-  });
+export const getStaticProps = async () => {
+  const categories = await getAllCategories();
+  
   return {
     props: {
-      categories: categoriesWithPostsCount,
+      categories: categories,
     },
+    revalidate: 60, // Revalidate every minute
   };
 };
