@@ -1,12 +1,12 @@
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { a11yDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
-
-const HighlightedCode = ({ children, language }) => {
+// Simple code component without syntax highlighting
+const Code = ({ children, language }) => {
   return (
-    <SyntaxHighlighter language={language} style={a11yDark}>
-      {children}
-    </SyntaxHighlighter>
+    <pre className="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto">
+      <code className={language ? `language-${language}` : ''}>
+        {children}
+      </code>
+    </pre>
   );
 };
 
-export default HighlightedCode;
+export default Code;

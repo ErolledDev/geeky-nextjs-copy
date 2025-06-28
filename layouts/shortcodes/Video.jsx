@@ -1,7 +1,10 @@
-function Video({ title, width = 500, height = "auto", src, ...rest }) {
+// Simple video component
+function Video({ title, width = "100%", height = "auto", src, ...rest }) {
+  if (!src) return null;
+  
   return (
     <video
-      className="overflow-hidden rounded"
+      className="overflow-hidden rounded w-full"
       width={width}
       height={height}
       controls
@@ -11,7 +14,7 @@ function Video({ title, width = 500, height = "auto", src, ...rest }) {
         src={src.match(/^http/) ? src : `/videos/${src}`}
         type="video/mp4"
       />
-      {title}
+      {title && <p>{title}</p>}
     </video>
   );
 }
