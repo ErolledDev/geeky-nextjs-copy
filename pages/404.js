@@ -1,6 +1,5 @@
 import NotFound from "@layouts/404";
 import Base from "@layouts/Baseof";
-import { getRegularPage } from "@lib/contentParser";
 
 const notFound = ({ data }) => {
   return (
@@ -12,7 +11,14 @@ const notFound = ({ data }) => {
 
 // get 404 page data
 export const getStaticProps = async () => {
-  const notFoundData = await getRegularPage("404");
+  const notFoundData = {
+    frontmatter: {
+      title: "Page Not Found",
+      layout: "404"
+    },
+    content: "Sorry, the page you are looking for doesn't exist. Please check the URL or navigate back to the homepage."
+  };
+  
   return {
     props: {
       data: notFoundData,

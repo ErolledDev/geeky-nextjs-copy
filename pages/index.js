@@ -4,7 +4,6 @@ import ImageFallback from "@layouts/components/ImageFallback";
 import Pagination from "@layouts/components/Pagination";
 import Post from "@layouts/partials/Post";
 import Sidebar from "@layouts/partials/Sidebar";
-import { getListPage } from "@lib/contentParser";
 import { getAllPosts, getAllCategories, getFeaturedPosts } from "@lib/api";
 import dateFormat from "@lib/utils/dateFormat";
 import { sortByDate } from "@lib/utils/sortFunctions";
@@ -13,16 +12,48 @@ import Link from "next/link";
 import { FaRegCalendar } from "react-icons/fa";
 const { blog_folder, pagination } = config.settings;
 
+// Default banner content
+const defaultBanner = {
+  title: "Welcome to **Geeky** Blog",
+  title_small: "A Modern Blog Template",
+  content: "Discover amazing content and insights on web development, technology, and more.",
+  image_enable: true,
+  image: "/images/banner-author.png",
+  button: {
+    enable: true,
+    label: "Explore Posts",
+    link: "/posts",
+    rel: ""
+  }
+};
+
+const defaultFeaturedPosts = {
+  enable: true,
+  title: "Featured Posts",
+  showPost: 6
+};
+
+const defaultRecentPosts = {
+  enable: true,
+  title: "Recent Posts"
+};
+
+const defaultPromotion = {
+  enable: false,
+  image: "/images/promotion.png",
+  link: "#"
+};
+
 const Home = ({
-  banner,
   posts,
-  featured_posts,
-  recent_posts,
   categories,
-  promotion,
   featuredPosts,
 }) => {
   const showPosts = pagination;
+  const banner = defaultBanner;
+  const featured_posts = defaultFeaturedPosts;
+  const recent_posts = defaultRecentPosts;
+  const promotion = defaultPromotion;
 
   return (
     <Base>
@@ -178,22 +209,14 @@ export default Home;
 
 // for homepage data
 export const getStaticProps = async () => {
-  const homepage = await getListPage("content/_index.md");
-  const { frontmatter } = homepage;
-  const { banner, featured_posts, recent_posts, promotion } = frontmatter;
-  
   // Fetch data from API
   const posts = await getAllPosts();
   const categories = await getAllCategories();
-  const featuredPosts = await getFeaturedPosts(featured_posts.showPost || 6);
+  const featuredPosts = await getFeaturedPosts(defaultFeaturedPosts.showPost || 6);
 
   return {
     props: {
-      banner: banner,
       posts: posts,
-      featured_posts,
-      recent_posts,
-      promotion,
       categories: categories,
       featuredPosts: featuredPosts,
     },

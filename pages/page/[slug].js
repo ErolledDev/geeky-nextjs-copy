@@ -1,21 +1,19 @@
 import config from "@config/config.json";
 import Base from "@layouts/Baseof";
 import Pagination from "@layouts/components/Pagination";
-import { getListPage } from "@lib/contentParser";
 import { getAllPosts } from "@lib/api";
 import { markdownify } from "@lib/utils/textConverter";
 import { sortByDate } from "@lib/utils/sortFunctions";
 import Post from "@partials/Post";
-const { blog_folder, pagination } = config.settings;
+const { pagination } = config.settings;
 
 // blog pagination
-const BlogPagination = ({ postIndex, posts, currentPage, paginationCount }) => {
+const BlogPagination = ({ posts, currentPage, paginationCount }) => {
   const indexOfLastPost = currentPage * paginationCount;
   const indexOfFirstPost = indexOfLastPost - paginationCount;
   const orderedPosts = sortByDate(posts);
   const currentPosts = orderedPosts.slice(indexOfFirstPost, indexOfLastPost);
-  const { frontmatter } = postIndex;
-  const { title } = frontmatter;
+  const title = "Blog Posts";
   const totalPages = Math.ceil(posts.length / paginationCount);
 
   return (
@@ -65,14 +63,12 @@ export const getStaticProps = async ({ params }) => {
   const currentPage = parseInt((params && params.slug) || 1);
   const { pagination } = config.settings;
   const posts = await getAllPosts();
-  const postIndex = await getListPage(`content/${blog_folder}/_index.md`);
 
   return {
     props: {
       paginationCount: pagination,
       posts: posts,
       currentPage: currentPage,
-      postIndex: postIndex,
     },
     revalidate: 60, // Revalidate every minute
   };
