@@ -1,8 +1,8 @@
-import Button from "./Button";
-import Code from "./Code";
-import Notice from "./Notice";
-import Video from "./Video";
-import Youtube from "./Youtube";
+import Button from "./Button.jsx";
+import Code from "./Code.jsx";
+import Notice from "./Notice.jsx";
+import Video from "./Video.jsx";
+import Youtube from "./Youtube.jsx";
 
 const shortcodes = {
   Button,
