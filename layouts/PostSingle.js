@@ -61,13 +61,10 @@ const PostSingle = ({
                 {markdownify(title, "h1", "lg:text-[42px] mt-4")}
                 <ul className="flex items-center space-x-4">
                   <li>
-                    <Link
-                      className="inline-flex items-center font-secondary text-xs leading-3"
-                      href="/about"
-                    >
+                    <span className="inline-flex items-center font-secondary text-xs leading-3">
                       <FaUserAlt className="mr-1.5" />
                       {author}
-                    </Link>
+                    </span>
                   </li>
                   <li className="inline-flex items-center font-secondary text-xs leading-3">
                     <FaRegCalendar className="mr-1.5" />

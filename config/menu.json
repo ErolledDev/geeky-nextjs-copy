@@ -5,27 +5,12 @@
       "url": "/"
     },
     {
-      "name": "About",
-      "url": "/about"
+      "name": "Posts",
+      "url": "/posts"
     },
     {
-      "name": "Elements",
-      "url": "/elements"
-    },
-    {
-      "name": "Contact",
-      "url": "/contact"
-    },
-    {
-      "name": "Pages",
-      "url": "",
-      "hasChildren": true,
-      "children": [
-        {
-          "name": "Categories",
-          "url": "/categories"
-        }
-      ]
+      "name": "Categories",
+      "url": "/categories"
     }
   ],
   "footer": [
@@ -34,16 +19,12 @@
       "url": "/"
     },
     {
-      "name": "About",
-      "url": "/about"
+      "name": "Posts",
+      "url": "/posts"
     },
     {
-      "name": "Contact",
-      "url": "/contact"
-    },
-    {
-      "name": "Privacy Policy",
-      "url": "#"
+      "name": "Categories",
+      "url": "/categories"
     }
   ]
 }
